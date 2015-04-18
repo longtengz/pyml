@@ -134,7 +134,7 @@ class NN():
 
             self.updateWeights(learningRate, examplesNum)
 
-    def test(self, inputOutputPairs):
+    def test(self, inputOutputPairs, verbose=False):
         inputs, desiredOutputs = zip(*inputOutputPairs)
 
         inputs = list(inputs)
@@ -142,8 +142,21 @@ class NN():
 
         outputs = self.classify(inputs)
 
+        error = 0
+        outputLabelNum = len(outputs[0])
+
         for output, desired in zip(outputs, desiredOutputs):
-            print(output, desired)
+            if verbose == True:
+                print(output, desired)
+
+            sortedOutputIndex = sorted(range(outputLabelNum), key = lambda k: output[k])
+            sortedDesiredIndex = sorted(range(outputLabelNum), key = lambda k: desired[k])
+
+            if sortedOutputIndex[-1] != sortedDesiredIndex[-1]:
+                error += 1
+
+        print('\n\nError rate:', error / len(inputOutputPairs))
+
 
     def classify(self, inputs):
         outputs = list()
@@ -176,7 +189,5 @@ class NN():
             else:
                 savedWeights = [float(wt) for wt in savedWeights]
                 self.weights.append(savedWeights)
-
-        print(type(self.weights))
 
         weightsFile.close()
