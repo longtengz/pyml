@@ -105,36 +105,71 @@ class NN():
                 self.derivatives[index][idx] = 0
                 # reset derivatives
 
-    def train(self, trainingExamples, iterations, learningRate):
+    def train(self, trainingExamples, iterations, learningRate, isSGD=False):
         examplesNum = len(trainingExamples)
 
-        newError = 0
-        oldError = 0
+        if isSGD == False:
+            #gradient descent
+            newError = 0
+            oldError = 0
 
-        for iteration in range(iterations):
+            for iteration in range(iterations):
+                oldError = newError
+                newError = 0.0
 
-            oldError = newError
-            newError = 0.0
+                for inputValue, outputValue in trainingExamples:
+                    # forward pass
+                    self.forwardActivations(inputValue)
+                    # backward pass
+                    self.backPropagate(inputValue, outputValue)
 
-            for inputValue, outputValue in trainingExamples:
-                self.forwardActivations(inputValue)
-                # forward pass
-                self.backPropagate(inputValue, outputValue)
-                # backward pass
-                for index, output in enumerate(outputValue):
-                    newError += output * math.log(self.activations[-1][index]) + (1 - output) * math.log(1 - self.activations[-1][index])
+                    for index, output in enumerate(outputValue):
+                        newError += output * math.log(self.activations[-1][index]) + (1 - output) * math.log(1 - self.activations[-1][index])
 
-            newError = newError / (-examplesNum)
+                self.updateWeights(learningRate, examplesNum)
 
-            print(iteration, oldError - newError)
+                newError = newError / (-examplesNum)
+                print(iteration, oldError - newError)
 
-            if oldError - newError < 0 and iteration != 0:
-                print('\n\n\nlearningRate is too big now')
-                return
+                # if the error is not decreasing, then you should define a smaller learningRate
+                if oldError - newError < 0 and iteration != 0:
+                    print('\n\n\nlearningRate is too big now\n\nPlease change a smaller learningRate')
+                    return
 
-            self.updateWeights(learningRate, examplesNum)
+        else:
+            #stochastic gradient descent
+            # TODO
+            # add SGD tricks to evaluate whether SGD works or not?
 
-    def test(self, inputOutputPairs, verbose=False):
+            for iteration in range(iterations):
+                trainingSetError = 0
+
+                # Trick 1: randomly shuffle the training examples
+                random.shuffle(trainingExamples)
+
+                for inputValue, outputValue in trainingExamples:
+                    # forward pass
+                    self.forwardActivations(inputValue)
+                    # backward pass
+                    self.backPropagate(inputValue, outputValue)
+
+                    self.updateWeights(learningRate, 1)
+
+
+                # Trick 3: monitor the training cost
+                for inputValue, outputValue in trainingExamples:
+
+                    self.forwardActivations(inputValue)
+
+                    for index, output in enumerate(outputValue):
+                        trainingSetError += output * math.log(self.activations[-1][index]) + (1 - output) * math.log(1 - self.activations[-1][index])
+
+                print(iteration, 'trainingSetError', trainingSetError)
+
+
+
+
+    def test(self, inputOutputPairs, verbose=False, hasReturn=False):
         inputs, desiredOutputs = zip(*inputOutputPairs)
 
         inputs = list(inputs)
@@ -152,10 +187,15 @@ class NN():
             sortedOutputIndex = sorted(range(outputLabelNum), key = lambda k: output[k])
             sortedDesiredIndex = sorted(range(outputLabelNum), key = lambda k: desired[k])
 
+            #print(sortedOutputIndex[-1], 'when recognizing', sortedDesiredIndex[-1])
+
             if sortedOutputIndex[-1] != sortedDesiredIndex[-1]:
                 error += 1
 
-        print('\n\nError rate:', error / len(inputOutputPairs))
+        if hasReturn == False:
+            print('\n\nError rate:', error / len(inputOutputPairs))
+        else:
+            return error / len(inputOutputPairs)
 
 
     def classify(self, inputs):

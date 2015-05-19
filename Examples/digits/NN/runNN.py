@@ -1,6 +1,7 @@
 import sys
+# TODO
+# need to normalize this path for Windows users
 sys.path.insert(0, '../../../NeuralNet')
-
 
 from NeuralNet import NN
 from ActivationFunction.AF import *
@@ -33,10 +34,16 @@ with open('../data/testDigits.data', 'r') as testDigitsFile:
 print('start')
 
 #digitsClassifier = NN([1024, 30, 10], sigmoid, sigmoidDiff)
-digitsClassifier = NN([1024, 30, 10], sigmoid, sigmoidDiff, '../data/digitsWeights-1024-500-10.data')
+#digitsClassifier = NN([1024, 30, 10], sigmoid, sigmoidDiff, '../data/digitsWeights-1024-500-10.data')
 
-digitsClassifier.train(trainingPairs, 5, 3)
+# stochastic gradient descent
+digitsClassifier = NN([1024, 30, 10], sigmoid, sigmoidDiff, '../data/digitsWeights-sgd-1024-500-10.data')
+
+digitsClassifier.train(trainingPairs, 10, 0.05, isSGD=True)
 
 digitsClassifier.test(testPairs)
 
-digitsClassifier.saveWeightsToFile('../data/digitsWeights-1024-500-10.data')
+#digitsClassifier.saveWeightsToFile('../data/digitsWeights-1024-500-10.data')
+
+# SGD 
+digitsClassifier.saveWeightsToFile('../data/digitsWeights-sgd-1024-500-10.data')
