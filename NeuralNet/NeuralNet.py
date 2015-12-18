@@ -1,3 +1,4 @@
+from __future__ import division
 import random 
 import math
 
@@ -89,11 +90,11 @@ class NN():
             for idx, der in enumerate(ders):
                 if index == 0:
                     if idx < self.arch[1]:
-                        ders[idx] += deltas[index][math.floor(idx % self.arch[1])] * 1
+                        ders[idx] += deltas[index][int(math.floor(idx % self.arch[1]))] * 1
                     else:
-                        ders[idx] += deltas[index][math.floor(idx % self.arch[1])] * inputValue[math.floor(idx / self.arch[1]) - 1]
+                        ders[idx] += deltas[index][int(math.floor(idx % self.arch[1]))] * inputValue[int(math.floor(idx / self.arch[1])) - 1]
                 else:
-                    ders[idx] += deltas[index][math.floor(idx % self.arch[index+1])] * self.activations[index-1][math.floor(idx / self.arch[index+1])]
+                    ders[idx] += deltas[index][int(math.floor(idx % self.arch[index+1]))] * self.activations[index-1][int(math.floor(idx / self.arch[index+1]))]
 
 
 
@@ -187,12 +188,14 @@ class NN():
             sortedOutputIndex = sorted(range(outputLabelNum), key = lambda k: output[k])
             sortedDesiredIndex = sorted(range(outputLabelNum), key = lambda k: desired[k])
 
-            #print(sortedOutputIndex[-1], 'when recognizing', sortedDesiredIndex[-1])
+            print(sortedOutputIndex[-1], 'when recognizing', sortedDesiredIndex[-1])
 
             if sortedOutputIndex[-1] != sortedDesiredIndex[-1]:
                 error += 1
 
         if hasReturn == False:
+            print error
+            print len(inputOutputPairs)
             print('\n\nError rate:', error / len(inputOutputPairs))
         else:
             return error / len(inputOutputPairs)

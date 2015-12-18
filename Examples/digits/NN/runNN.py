@@ -39,11 +39,11 @@ print('start')
 # stochastic gradient descent
 digitsClassifier = NN([1024, 30, 10], sigmoid, sigmoidDiff, '../data/digitsWeights-sgd-1024-500-10.data')
 
-digitsClassifier.train(trainingPairs, 10, 0.05, isSGD=True)
+#digitsClassifier.train(trainingPairs, 10, 0.05, isSGD=True)
 
 digitsClassifier.test(testPairs)
 
 #digitsClassifier.saveWeightsToFile('../data/digitsWeights-1024-500-10.data')
 
 # SGD 
-digitsClassifier.saveWeightsToFile('../data/digitsWeights-sgd-1024-500-10.data')
+#digitsClassifier.saveWeightsToFile('../data/digitsWeights-sgd-1024-500-10.data')
